@@ -1,6 +1,6 @@
 package thread.status;
 
-public class Demo01 {
+public class StopDemo01 {
     public static void main(String[] args) {
         Study study = new Study();
         Thread thread = new Thread(study);
