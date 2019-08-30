@@ -27,7 +27,7 @@ public class SyncDemo02 {
 /*
 * 单例设计模式
 * 确保一个类只有一个对象
-* 懒汉式
+* 懒汉式 getInstance()4 多线程高效率double check
 * 1.构造器私有化，避免外部直接创建对象
 * 2.声明一个私有的静态变量
 * 3.创建一个对外的公共的静态方法访问该变量，如果变量没有对象，创建该对象
@@ -40,14 +40,56 @@ class Jvm{
     private Jvm(){
 
     }
-    //创建一个对外的公共的静态方法访问该变量，如果变量没有对象，创建该对象
-    public static Jvm getInstance(long time) throws InterruptedException {
+
+    //创建一个对外的公共的synchronized block的静态方法访问该变量，如果变量没有对象，创建该对象
+    public static Jvm getInstance4(long time) throws InterruptedException {
+        //if instance does not exist, if-term runs,otherwise return instance direct
+        if(instance == null){
+            synchronized(Jvm.class) {
+            //Each thread would stay here to justify whether instance is null
+            //Performance is low
+                if (instance == null) {
+                    Thread.sleep(time);
+                    instance = new Jvm();
+                }
+            }
+        }
+        return instance;
+    }
+
+
+    //创建一个对外的公共的synchronized block的静态方法访问该变量，如果变量没有对象，创建该对象
+    public static Jvm getInstance3(long time) throws InterruptedException {
+        synchronized(Jvm.class) {
+            //Each thread would stay here to justify whether instance is null
+            //Performance is low
+            if (instance == null) {
+                Thread.sleep(time);
+                instance = new Jvm();
+            }
+        }
+        return instance;
+    }
+
+    //创建一个对外的公共的synchronized method的静态方法访问该变量，如果变量没有对象，创建该对象
+    public static synchronized Jvm getInstance2(long time) throws InterruptedException {
         if(instance == null){
             Thread.sleep(time);
             instance = new Jvm();
         }
         return instance;
     }
+
+
+    //创建一个对外的公共的静态方法访问该变量，如果变量没有对象，创建该对象
+    public static  Jvm getInstance1(long time) throws InterruptedException {
+        if(instance == null){
+            Thread.sleep(time);
+            instance = new Jvm();
+        }
+        return instance;
+    }
+
 }
 
 class JvmThread implements Runnable{
@@ -60,7 +102,7 @@ class JvmThread implements Runnable{
     @Override
     public void run() {
         try {
-            System.out.println(Thread.currentThread().getName()+" creates "+Jvm.getInstance(time));
+            System.out.println(Thread.currentThread().getName()+" creates "+Jvm.getInstance4(time));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
