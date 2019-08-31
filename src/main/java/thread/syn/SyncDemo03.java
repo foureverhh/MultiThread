@@ -1,5 +1,7 @@
 package thread.syn;
-
+/*
+* Too many synchronized may lead to dead lock
+* */
 public class SyncDemo03 {
     public static void main(String[] args) {
         Object g = new Object();
